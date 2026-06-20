@@ -47,4 +47,5 @@ test-suite deep-learning-in-haskell-test
     main-is:          Main.hs
     build-depends:
         base ^>=4.20.2.0,
-        deep-learning-in-haskell
+        deep-learning-in-haskell,
+        HUnit
