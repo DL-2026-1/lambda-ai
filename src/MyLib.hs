@@ -6,7 +6,7 @@ module MyLib (
     perceptronPredict,
     trainPerceptron,
     sumWeight,
-    fixWeight,
+    fixWeightSinglePerceptron,
     learnPerceptron,
     threshold
     ) where
@@ -15,7 +15,7 @@ import Perceptron (
     Perceptron(..), 
     perceptronPredict, 
     sumWeight, 
-    fixWeight, 
+    fixWeightSinglePerceptron, 
     learnPerceptron,
     trainPerceptron,
     )

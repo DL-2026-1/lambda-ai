@@ -12,27 +12,6 @@ data Perceptron = Perceptron
   , learnRate :: LearnRate
   }
 
-perceptronPredict :: [Double] -> Perceptron -> Double
-perceptronPredict inputs neuron = (fst (activationFunction neuron)) $ sumWeight inputs neuron + ((bias neuron) (biasInput neuron))
-
-sumWeight :: [Double] -> Perceptron -> Double
-sumWeight inputs neuron = (sum . zipWith (\w i -> w i) (weights neuron)) inputs
-
-fixWeight :: Weight -> LearnRate -> SingleInput -> Target -> Result -> Weight
-fixWeight weight learnRate input target result = 
-    (* (weight 1 + learnRate (input * (target - result))))
-
-learnPerceptron :: Input -> Target -> Perceptron -> Perceptron
-learnPerceptron inputs target neuron = neuron { weights = newWeights, bias = newBias }
-  where
-    prediction = perceptronPredict inputs neuron
-    newWeights = zipWith (\w i -> fixWeight w (learnRate neuron) i target prediction) (weights neuron) inputs
-    newBias = fixWeight (bias neuron) (learnRate neuron) (-1) target prediction
-
-trainPerceptron :: [(Input, Target)] -> Perceptron -> Perceptron
-trainPerceptron trainingData neuron = 
-  foldl (\n (inputs, target) -> 
-    learnPerceptron inputs target n) neuron trainingData
 
 instance Eq Perceptron where
     (==) p1 p2 = 
@@ -47,3 +26,25 @@ instance Show Perceptron where
                     ", bias = " ++ show (bias neuron 1) ++ 
                     ", biasInput = " ++ show (biasInput neuron) ++ 
                     ", learnRate = " ++ show (learnRate neuron 1) ++ " }"
+
+perceptronPredict :: [Double] -> Perceptron -> Double
+perceptronPredict inputs neuron = (fst (activationFunction neuron)) $ sumWeight inputs neuron + ((bias neuron) (biasInput neuron))
+
+sumWeight :: [Double] -> Perceptron -> Double
+sumWeight inputs neuron = (sum . zipWith (\w i -> w i) (weights neuron)) inputs
+
+fixWeightSinglePerceptron :: Weight -> LearnRate -> SingleInput -> Target -> Result -> Weight
+fixWeightSinglePerceptron weight learnRate input target result = 
+    (* (weight 1 + learnRate (input * (target - result))))
+
+learnPerceptron :: Input -> Target -> Perceptron -> Perceptron
+learnPerceptron inputs target neuron = neuron { weights = newWeights, bias = newBias }
+  where
+    prediction = perceptronPredict inputs neuron
+    newWeights = zipWith (\w i -> fixWeightSinglePerceptron w (learnRate neuron) i target prediction) (weights neuron) inputs
+    newBias = fixWeightSinglePerceptron (bias neuron) (learnRate neuron) (-1) target prediction
+
+trainPerceptron :: [(Input, Target)] -> Perceptron -> Perceptron
+trainPerceptron trainingData neuron = 
+  foldl (\n (inputs, target) -> 
+    learnPerceptron inputs target n) neuron trainingData
