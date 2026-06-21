@@ -13,7 +13,7 @@ data Perceptron = Perceptron
   }
 
 perceptronPredict :: [Double] -> Perceptron -> Double
-perceptronPredict inputs neuron = activationFunction neuron $ sumWeight inputs neuron + ((bias neuron) (biasInput neuron))
+perceptronPredict inputs neuron = (fst (activationFunction neuron)) $ sumWeight inputs neuron + ((bias neuron) (biasInput neuron))
 
 sumWeight :: [Double] -> Perceptron -> Double
 sumWeight inputs neuron = (sum . zipWith (\w i -> w i) (weights neuron)) inputs

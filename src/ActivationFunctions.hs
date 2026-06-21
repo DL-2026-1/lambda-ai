@@ -9,10 +9,11 @@ type Value = Double
 type Values = [Value]
 
 threshold :: ThresholdValues -> Values -> ActivationFunction
-threshold thresholds inputs = 
-    \v -> if v > maxValue 
-          then lastValue 
-          else (snd . head . filter ((v>) . fst)) valuePairs
-    where 
-        valuePairs = (sortOn fst . zip thresholds) inputs
-        (maxValue, lastValue) = last valuePairs
+threshold thresholds inputs = (activationF, derivateF)
+  where
+    valuePairs = (sortOn fst . zip thresholds) inputs
+    (maxValue, lastValue) = last valuePairs
+    activationF v
+        | v > maxValue = lastValue
+        | otherwise = (snd . head . filter ((v>) . fst)) valuePairs
+    derivateF _ = 0

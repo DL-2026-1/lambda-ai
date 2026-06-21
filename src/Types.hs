@@ -4,7 +4,7 @@ type Weight = (SingleInput -> Double)
 
 type Bias = (SingleInput -> Double)
 
-type ActivationFunction = (Double -> Double)
+type ActivationFunction = ((Double -> Double), (Double -> Double)) 
 
 type LearnRate = (SingleInput -> Double)
 
