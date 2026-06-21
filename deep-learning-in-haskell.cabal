@@ -23,7 +23,8 @@ library
         Types, 
         Perceptron, 
         ActivationFunctions,
-        Utils
+        Utils,
+        MLP
     -- other-extensions:
     build-depends:    base ^>=4.20.2.0
     hs-source-dirs:   src
