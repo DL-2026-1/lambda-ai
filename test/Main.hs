@@ -1,14 +1,11 @@
 module Main (main) where
 
-import MyLib (someFunc)
+import PerceptronTests (testAllPerceptron)
 
 import Test.HUnit
 
-testBase :: Test
-testBase = TestCase (assertEqual "Some Func" "Função" (someFunc))
-
 allTests :: Test
-allTests = TestList [TestLabel "Test Base" testBase]
+allTests = TestList [TestLabel "Perceptron Tests" testAllPerceptron]
 
 main :: IO ()
 main = do
