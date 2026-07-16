@@ -5,12 +5,14 @@ type Gradient                   = Double
 type Input                      = Double
 type Result                     = Double
 type Target                     = Double
+type Weight                     = Double
 
 type Dimensions                 = [Dimension]
-type Gradients                  = [Gradient]
+type Gradients                  = ([Gradient], Dimensions)
 type Inputs                     = ([Input],  Dimensions)
 type Results                    = ([Result], Dimensions)
-type Targets                    = [Target]
+type Targets                    = ([Target], Dimensions)
+type Weights                    = ([Weight], Dimensions)
 
 type GradientsAll               = [Gradients]
 type InputsAll                  = [Inputs]
@@ -41,18 +43,38 @@ type DeepLearnModelInit         = (Forward, BackwardInit, CompilerInit)
 type DeepLearnModelInitLayer    = (Forward', BackwardInit', CompilerInit')
 type DeepLearnModelInitNode     = (Forward'', BackwardInit'', CompilerInit'')
 
-convolucao :: Num a => [Int] -> [Int] -> [a] -> [a] -> [a]
-convolucao [dimensaoArray] [dimensaoKernel] array kernel =
-    [ (sum . zipWith (*) ( ( take dimensaoKernel . drop diferencaDimensoes ) array )) kernel 
-    | diferencaDimensoes <- [0 .. dimensaoArray - dimensaoKernel] ]
-convolucao (dimensaoArray:dimensoesArray) (dimensaoKernel:dimensoesKernel) array kernel =
-    concat [ convolucao' fatiaArray | fatiaArray <- [0 .. dimensaoArray - dimensaoKernel] ]
+convolution :: Inputs -> Inputs -> [Double]
+convolution (array, [dimensionArray]) (kernel, [dimensionKernel]) =
+    [ (sum . zipWith (*) ( ( take dimensionKernel . drop diffDimensions ) array )) kernel 
+    | diffDimensions <- [0 .. dimensionArray - dimensionKernel] ]
+convolution (array, (dimensionArray:dimensionsArray)) (kernel, (dimensionKernel:dimensionsKernel)) =
+    concat [ convolution' cutArray | cutArray <- [0 .. dimensionArray - dimensionKernel] ]
   where
-    recorteDimensionalA = product dimensoesArray 
-    recorteDimensionalK = product dimensoesKernel
-    convolucao' fatiaArray = foldl1 (zipWith (+))
-        [ convolucao dimensoesArray dimensoesKernel 
-            (drop ((fatiaArray + fatiaKernel) * recorteDimensionalA) array)                  
-            (take recorteDimensionalK (drop (fatiaKernel * recorteDimensionalK) kernel))
-        | fatiaKernel <- [0 .. dimensaoKernel - 1] ]
-convolucao _ _ _ _ = []
+    cutDimensionArray     = product dimensionsArray 
+    cutDimensionKernel    = product dimensionsKernel
+    convolution' cutArray = foldl1 (zipWith (+))
+        [ convolution ((drop ((cutArray + cutKernel) * cutDimensionArray) array), dimensionsArray) 
+                      ((take cutDimensionKernel (drop (cutKernel * cutDimensionKernel) kernel)), dimensionsKernel) 
+        | cutKernel <- [0 .. dimensionKernel - 1] ]
+convolution _ _ = []
+
+padding :: Inputs -> Dimensions -> Inputs
+padding (array, []) [] = (array, [])
+padding (array, [d]) [p] = 
+    (replicate p 0 ++ array ++ replicate p 0, [d + 2 * p])
+padding (array, (d:ds)) (p:ps) = 
+    (finalPad ++ concatMap fst paddeds ++ finalPad, (d + 2 * p) : snd (head paddeds))
+  where
+    cutDimensional = product ds
+    paddeds        = [ padding (take cutDimensional (drop (i * cutDimensional) array), ds) ps | i <- [0 .. d - 1] ]
+    finalPad       = replicate (p * product (snd (head paddeds))) 0
+padding inputs _ = inputs
+
+convolutionWrapper :: Inputs -> Inputs -> Dimensions -> Results
+convolutionWrapper (array, dimensionsArray) (kernel, dimensionsKernel) paddings = 
+    (convolution (padded, dimensionsPadded) (kernel, dimensionsKernel), (zipWith (-) dimensionsPadded . map succ) dimensionsKernel)
+    where
+        (padded, dimensionsPadded) = padding (array, dimensionsArray) paddings
+
+flipN :: Inputs -> Inputs
+flipN (array, dimensions) = (reverse array, dimensions)
