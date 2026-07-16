@@ -1,7 +1,7 @@
 module ActivationFunctions where
 
-import Types
 import Data.List (sortOn)
+import Architeture 
 
 type ThresholdValue = Double
 type ThresholdValues = [ThresholdValue]
@@ -49,3 +49,12 @@ sigmoid = (f, f')
     where
         f x  = 1 / (1 + exp (-x))
         f' x = f x * (1 - f x)
+
+genActivationLayer :: ActivationFunction -> (Forward'', Backward'')
+genActivationLayer activationFunction = (forward, backward)
+    where
+        forward :: Forward''
+        forward (x, dimx) = (map (fst activationFunction) x, dimx)
+        
+        backward :: Backward''
+        backward (gradients, dimensionsGradients) (inputs, _) = (zipWith (*) gradients (map (snd activationFunction) inputs) ,dimensionsGradients)

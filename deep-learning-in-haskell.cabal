@@ -20,12 +20,10 @@ library
     import:           warnings
     exposed-modules:  MyLib
     other-modules: 
-        Types, 
-        Perceptron, 
         ActivationFunctions,
-        Utils,
-        MLP,
-        Architeture
+        Architeture,
+        ConvolutionalPerceptron,
+        LossFunctions
     -- other-extensions:
     build-depends:    base ^>=4.20.2.0
     hs-source-dirs:   src
@@ -46,7 +44,7 @@ executable deep-learning-in-haskell
 test-suite deep-learning-in-haskell-test
     import:           warnings
     default-language: Haskell2010
-    other-modules: PerceptronTests
+    -- other-modules: 
     -- other-extensions:
     type:             exitcode-stdio-1.0
     hs-source-dirs:   test
