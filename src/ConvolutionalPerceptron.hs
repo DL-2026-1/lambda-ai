@@ -9,15 +9,15 @@ data ConvolutionalPerceptron = ConvolutionalPerceptron
   , learnRate          :: Weight
   }
 
-genCNNPerceptronLast :: ConvolutionalPerceptron -> (Forward'', Backward'')
+genCNNPerceptronLast :: ConvolutionalPerceptron -> (Forward, Backward)
 genCNNPerceptronLast convolutionalPerceptron = (forward, backward)
   where
-    forward :: Forward''
+    forward :: Forward
     forward inputs = (map (+(bias convolutionalPerceptron)) weightSum, dimensions)
       where 
         (weightSum, dimensions) =  convolutionWrapper inputs (kernel convolutionalPerceptron) []
     
-    backward :: Backward''
+    backward :: Backward
     backward (gradients, gradientsDimensions) _ = 
       convolutionWrapper (gradients, gradientsDimensions) (flipN (kernel convolutionalPerceptron)) fullPaddings
       where

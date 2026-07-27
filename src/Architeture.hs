@@ -22,8 +22,12 @@ type GradientsAll               = [Gradients]
 type InputsAll                  = [Inputs]
 type ResultsAll                 = [Results]
 
-type Forward''                  = (Inputs -> Results)
-type Backward''                 = (Gradients -> Inputs      -> Gradients)
+type Forward                    = (Inputs -> Results)
+type Backward                   = (Gradients -> Inputs      -> Gradients)
+
+type Node                       = (Forward, Backward)
+type Layer                      = [Node]
+type Model                      = [Layer]
 
 convolution :: Inputs -> Inputs -> [Double]
 convolution (array, [dimensionArray]) (kernel, [dimensionKernel]) =

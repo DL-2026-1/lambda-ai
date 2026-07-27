@@ -23,6 +23,7 @@ library
         ActivationFunctions,
         Architeture,
         ConvolutionalPerceptron,
+        Layer,
         LossFunctions
     -- other-extensions:
     build-depends:    base ^>=4.20.2.0
