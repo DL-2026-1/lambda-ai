@@ -13,6 +13,8 @@ build-type:         Simple
 extra-doc-files:    CHANGELOG.md
 -- extra-source-files:
 
+data-files:         data/iris.csv, data/mnist_train.csv, data/mnist_test.csv
+
 common warnings
     ghc-options: -Wall
 
