@@ -50,9 +50,9 @@ genCNNPerceptronLast :: ConvolutionalPerceptron -> (Forward, Backward)
 genCNNPerceptronLast convolutionalPerceptron = (forward, backward)
   where
     forward :: Forward
-    forward inputs = (map (+(bias convolutionalPerceptron)) weightSum, dimensions)
+    forward inputs = (map (+(bias convolutionalPerceptron)) weightSum, outputDimensions)
       where 
-        (weightSum, dimensions) =  convolutionWrapper inputs (kernel convolutionalPerceptron) []
+        (weightSum, outputDimensions) =  convolutionWrapper inputs (kernel convolutionalPerceptron) []
     
     backward :: Backward
     backward (gradients, gradientsDimensions) _ = 
@@ -63,9 +63,9 @@ genCNNPerceptronLast convolutionalPerceptron = (forward, backward)
 updateCNNPerceptron :: ConvolutionalPerceptron -> Gradients -> Inputs -> ConvolutionalPerceptron
 updateCNNPerceptron convolutionalPerceptron gradients inputs = 
   convolutionalPerceptron { kernel = (
-                              (zipWith (+) ((fst . kernel) convolutionalPerceptron) . map (* (learnRate convolutionalPerceptron))) newKernel, 
+                              (zipWith (-) ((fst . kernel) convolutionalPerceptron) . map (* (learnRate convolutionalPerceptron))) newKernel, 
                               newDimensions), 
-                            bias = bias convolutionalPerceptron + ((* (learnRate convolutionalPerceptron)) . sum . fst) gradients
+                            bias = bias convolutionalPerceptron - ((* (learnRate convolutionalPerceptron)) . sum . fst) gradients
                             }  
     where
       (newKernel, newDimensions) = convolutionWrapper inputs gradients []
@@ -92,9 +92,12 @@ genCNNLayerFunctions layer = (forwardLayer, backwardLayer)
     forwardLayer inputs = (combinedResults, numFilters : outDims)
       where
         resList         = map ($ inputs) forwards
+        firstRes = case resList of
+            (result:_) -> result
+            []         -> error "Convolutional layer has no perceptrons"
         combinedResults = concatMap fst resList
         numFilters      = length perceptrons
-        outDims         = snd (head resList)
+        outDims         = snd firstRes
 
     backwardLayer :: Backward
     backwardLayer gradients inputs = (totalDX, snd inputs)

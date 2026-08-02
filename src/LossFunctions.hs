@@ -9,8 +9,12 @@ simpleLF (targets, dimTargets) (results, dimResults)
 
 mseLF :: LossFunction
 mseLF (targets, dimTargets) (results, dimResults) 
-    | dimTargets /= dimResults = error "MSE need to have same dimensions"
+    | length targets /= length results = error 
+        $ "MSE need to have same dimensions. Dimensions targets: " 
+            ++ show dimTargets ++ ". Dimensions results: " ++ show dimResults
+            ++ " Length targets: " ++ show (length targets) ++ ". Length results: " ++ show (length results)
     | otherwise                = 
-        ((map (/ ((fromIntegral . length) targets)) -- divide for targets dimensions
-        . zipWith (\t r -> (r - t) ^ (2 :: Integer)) targets) results, -- square diff 
+        ((map (/ n) . zipWith (\t r -> 2 * (r - t)) targets) results,
             dimTargets )
+    where
+        n = fromIntegral (length targets)

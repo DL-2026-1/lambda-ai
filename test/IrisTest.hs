@@ -4,7 +4,7 @@ import Test.HUnit
 import Data.List (maximumBy)
 import Data.Ord (comparing)
 
-import Layers (MetaLayer (MetaActivation, MetaConvolution), Layer, genLayer')
+import Layers (MetaLayer (MetaActivation, MetaConvolution), genLayer')
 import Convolutional (ConvolutionalLayer'(..))
 import ActivationFunction (ActivationFunction'(..))
 import Model (Model(Model), train, forward)
@@ -16,13 +16,13 @@ import GHC.IO (unsafePerformIO)
 irisMetaLayers :: [MetaLayer]
 irisMetaLayers = 
     [
-         (MetaConvolution (ConvolutionalLayer' { learnRate' = 0.01, filters     = 8, dimensions  = [2]    })),
+         (MetaConvolution (ConvolutionalLayer' { learnRate' = 0.01, filters     = 8, dimensions  = [4]    })),
          (MetaActivation (ActivationFunction' "relu")),
 
-         (MetaConvolution (ConvolutionalLayer' { learnRate' = 0.01, filters     = 16, dimensions  = [8,2]    })),
+         (MetaConvolution (ConvolutionalLayer' { learnRate' = 0.01, filters     = 16, dimensions  = [8,1]    })),
          (MetaActivation (ActivationFunction' "relu")),
 
-         (MetaConvolution (ConvolutionalLayer' { learnRate' = 0.01, filters     = 3, dimensions  = [16, 2]    })),
+         (MetaConvolution (ConvolutionalLayer' { learnRate' = 0.01, filters     = 3, dimensions  = [16, 1, 1]    })),
          (MetaActivation (ActivationFunction' "sigmoid"))
     ]
 
@@ -44,19 +44,23 @@ csvData = readCSV "data/iris.csv"
 dataset :: IO Dataset
 dataset = do
     csv <- csvData
-    return $ map (\row -> 
+    return $ 
+        map (\row -> 
         let features = take 4 row
             label = last row
             inputs = (features, [4])
-            targets = (toOneHot label, [3])
+            targets = (toOneHot label, [3,1,1,1])
         in (inputs, targets)) csv
 
+trainSet :: Dataset
+testSet :: Dataset
 (trainSet, testSet) = unsafePerformIO $ do
     ds <- dataset
     stratifiedSplit 0.8 ds
 
 trainedModel :: Model
-trainedModel = unsafePerformIO $ do
+trainedModel =  
+    unsafePerformIO $ do
     initialModel <- irisModel
     let epochs = 10
         minBatch = 1

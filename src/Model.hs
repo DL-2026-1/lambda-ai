@@ -7,7 +7,7 @@ import Architeture
 data Model = Model [Layer]
 
 forward :: Model -> Forward'
-forward (Model layers) inputs = 
+forward (Model layers) inputs =
     (tail -- Ignore the initial input, which is not a result of any layer
     . scanl (\acc' fwd -> fwd acc') inputs -- Accumulate the results of each layer's forward pass
     . map (fst . genLayer) -- Get the forward function for each layer
