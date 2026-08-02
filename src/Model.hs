@@ -2,17 +2,9 @@ module Model where
 
 import Layers
 
-import Convolutional
-
-import ActivationFunction
-
 import Architeture
 
 data Model = Model [Layer]
-
-genLayer :: Layer -> (Forward, Backward)
-genLayer (ConvolutionalLayer' convLayer)       = genCNNLayerFunctions convLayer
-genLayer (ActivationLayer' activationFunction) = genActivationLayer activationFunction
 
 forward :: Model -> Forward'
 forward (Model layers) inputs = 

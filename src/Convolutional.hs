@@ -18,20 +18,27 @@ data ConvolutionalLayer = ConvolutionalLayer
     convolutionalPerceptrons :: [ConvolutionalPerceptron]
   }
 
+data ConvolutionalLayer' = ConvolutionalLayer' 
+  {
+    learnRate'  :: Weight
+  , filters     :: Int
+  , dimensions  :: Dimensions    
+  }
+
 -- -----------------------------------------------------
 
 genKernell :: Dimensions -> IO (Weights)
-genKernell dimensions = do
-  let size = product dimensions
+genKernell dims = do
+  let size = product dims
   weights <- mapM (\_ -> randomRIO (-0.5, 0.5)) [1..size]
-  return (weights, dimensions)
+  return (weights, dims)
 
-genCNNLayer :: (Weight, Int, Dimensions) -> IO (ConvolutionalLayer)
-genCNNLayer (learnRate, filters, dimensions) = do
-  kernels <- mapM (\_ -> genKernell dimensions) [1..filters]
-  learnRates <- mapM (\_ -> randomRIO (0.01, 0.1)) [1..filters]
-  biases <- mapM (\_ -> randomRIO (-0.5, 0.5)) [1..filters]
-  let learnRates' = if learnRate > 0 then replicate filters learnRate else learnRates 
+genCNNLayer :: ConvolutionalLayer' -> IO (ConvolutionalLayer)
+genCNNLayer convolutional' = do
+  kernels <- mapM (\_ -> genKernell (dimensions convolutional')) [1..(filters convolutional')]
+  learnRates <- mapM (\_ -> randomRIO (0.01, 0.1)) [1..(filters convolutional')]
+  biases <- mapM (\_ -> randomRIO (-0.5, 0.5)) [1..(filters convolutional')]
+  let learnRates' = if (learnRate' convolutional') > 0 then replicate (filters convolutional') (learnRate' convolutional') else learnRates 
   return ConvolutionalLayer 
     { 
       convolutionalPerceptrons = zipWith3 ConvolutionalPerceptron kernels biases learnRates'

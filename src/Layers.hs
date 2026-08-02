@@ -1,15 +1,31 @@
 module Layers where
 
-import Convolutional
+import Convolutional ( ConvolutionalLayer, updateCNNLayer, ConvolutionalLayer', genCNNLayer, genCNNLayerFunctions )
 
 import Architeture 
+import ActivationFunction
 
-data Layer = ConvolutionalLayer' ConvolutionalLayer
-           | ActivationLayer' ActivationFunction
+data Layer = ConvolutionalLayer Convolutional.ConvolutionalLayer | ActivationLayer Architeture.ActivationFunction
+
+data MetaLayer = ConvolutionalLayer' Convolutional.ConvolutionalLayer' | ActivationLayer' ActivationFunction'
+
+-- -----------------------------------------------------------------------
 
 updateLayer :: Layer -> Gradients -> Inputs -> Layer
-updateLayer (ConvolutionalLayer' convLayer) gradients inputs = ConvolutionalLayer' (updateCNNLayer convLayer gradients inputs)
-updateLayer (ActivationLayer' actFunc) _ _ = ActivationLayer' actFunc
+updateLayer (ConvolutionalLayer convLayer) gradients inputs = ConvolutionalLayer (updateCNNLayer convLayer gradients inputs)
+updateLayer (ActivationLayer actFunc) _ _ = ActivationLayer actFunc
 
 updateLayers :: [Layer] -> GradientsAll -> InputsAll -> [Layer]
 updateLayers layers gradientsAll inputsAll = zipWith3 updateLayer layers gradientsAll inputsAll
+
+-- -----------------------------------------------------------------------
+
+genLayer' :: MetaLayer -> IO Layer
+genLayer' (ConvolutionalLayer' convLayer') = ConvolutionalLayer <$> genCNNLayer convLayer'
+genLayer' (ActivationLayer' actFunc') = ActivationLayer <$> return (genActivationLayer' actFunc')
+
+------------------------------------------------------------------------
+
+genLayer :: Layer -> (Forward, Backward)
+genLayer (Layers.ConvolutionalLayer convLayer)       = genCNNLayerFunctions convLayer
+genLayer (Layers.ActivationLayer activationFunction) = genActivationLayer activationFunction

@@ -10,6 +10,8 @@ type Values = [Value]
 
 type Alpha = Double
 
+data ActivationFunction' = ActivationFunction' String
+
 threshold :: ThresholdValues -> Values -> ActivationFunction
 threshold thresholds inputs = (activationF, derivateF)
   where
@@ -58,3 +60,11 @@ genActivationLayer activationFunction = (forward, backward)
         
         backward :: Backward
         backward (gradients, dimensionsGradients) (inputs, _) = (zipWith (*) gradients (map (snd activationFunction) inputs) ,dimensionsGradients)
+
+genActivationLayer' :: ActivationFunction' -> ActivationFunction
+genActivationLayer' (ActivationFunction' "relu") = relu
+genActivationLayer' (ActivationFunction' "leakyRelu") = leakyRelu
+genActivationLayer' (ActivationFunction' "elu") = (elu 1.0)
+genActivationLayer' (ActivationFunction' "tanh") = tanhF
+genActivationLayer' (ActivationFunction' "sigmoid") = sigmoid
+genActivationLayer' (ActivationFunction' _) = error "Unknown activation function"
