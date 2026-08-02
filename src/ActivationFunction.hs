@@ -1,4 +1,4 @@
-module ActivationFunctions where
+module ActivationFunction where
 
 import Data.List (sortOn)
 import Architeture 
