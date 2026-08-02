@@ -19,6 +19,8 @@ type Results                    = ([Result], Dimensions)
 type Targets                    = ([Target], Dimensions)
 type Weights                    = ([Weight], Dimensions)
 
+type Dataset                    =  [(Inputs, Targets)]
+
 type LossFunction               = (Targets -> Results -> Weights)
 
 type GradientsAll               = [Gradients]

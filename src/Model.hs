@@ -25,13 +25,11 @@ compile :: Model -> GradientsAll -> Inputs -> ResultsAll -> Model
 compile (Model layers) gradientsAll inputs resultsAll = 
     Model $ updateLayers layers gradientsAll (inputs : init resultsAll) -- Update each layer with its corresponding gradients and inputs
 
-train :: Model -> InputsAll -> TargetsAll -> LossFunction -> (Epoch, MinBatch) -> Model
-train initialModel inputsAll targetsAll lossFunction (epoch, minBatch) = 
+train :: Model -> Dataset  -> LossFunction -> (Epoch, MinBatch) -> Model
+train initialModel dataset lossFunction (epoch, minBatch) = 
     foldl (\m _ -> trainEpoch m dataset lossFunction) initialModel [1..epoch]
-    where
-        dataset = zip inputsAll targetsAll
 
-trainEpoch :: Model -> [(Inputs, Targets)] -> LossFunction-> Model
+trainEpoch :: Model -> Dataset -> LossFunction-> Model
 trainEpoch model dataset lossFunction = foldl (trainStep lossFunction) model dataset 
 
 trainStep :: LossFunction -> Model ->  (Inputs, Targets) -> Model

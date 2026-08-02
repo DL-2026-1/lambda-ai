@@ -7,7 +7,7 @@ import ActivationFunction
 
 data Layer = ConvolutionalLayer Convolutional.ConvolutionalLayer | ActivationLayer Architeture.ActivationFunction
 
-data MetaLayer = ConvolutionalLayer' Convolutional.ConvolutionalLayer' | ActivationLayer' ActivationFunction'
+data MetaLayer = MetaConvolution Convolutional.ConvolutionalLayer' | MetaActivation ActivationFunction'
 
 -- -----------------------------------------------------------------------
 
@@ -21,8 +21,8 @@ updateLayers layers gradientsAll inputsAll = zipWith3 updateLayer layers gradien
 -- -----------------------------------------------------------------------
 
 genLayer' :: MetaLayer -> IO Layer
-genLayer' (ConvolutionalLayer' convLayer') = ConvolutionalLayer <$> genCNNLayer convLayer'
-genLayer' (ActivationLayer' actFunc') = ActivationLayer <$> return (genActivationLayer' actFunc')
+genLayer' (MetaConvolution convLayer') = ConvolutionalLayer <$> genCNNLayer convLayer'
+genLayer' (MetaActivation actFunc') = ActivationLayer <$> return (genActivationLayer' actFunc')
 
 ------------------------------------------------------------------------
 
