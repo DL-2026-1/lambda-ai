@@ -40,3 +40,10 @@ stratifiedSplit trainRatio dataset = do
         shuffled <- shuffle group
         let trainSize = round (trainRatio * fromIntegral (length shuffled))
         return $ splitAt trainSize shuffled
+
+chunksOf :: Int -> [a] -> [[a]]
+chunksOf _ [] = []
+chunksOf n xs = take n xs : chunksOf n (drop n xs)
+
+scaleGradients :: Double -> Gradients -> Gradients
+scaleGradients factor (grads, dims) = (map (* factor) grads, dims)

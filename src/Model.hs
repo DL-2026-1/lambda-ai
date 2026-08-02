@@ -3,6 +3,7 @@ module Model where
 import Layers
 
 import Architeture
+import Utils (chunksOf, scaleGradients)
 
 data Model = Model [Layer]
 
@@ -27,15 +28,23 @@ compile (Model layers) gradientsAll inputs resultsAll =
 
 train :: Model -> Dataset  -> LossFunction -> (Epoch, MinBatch) -> Model
 train initialModel dataset lossFunction (epoch, minBatch) = 
-    foldl (\m _ -> trainEpoch m dataset lossFunction) initialModel [1..epoch]
+    foldl (\m _ -> trainEpoch m dataset lossFunction minBatch) initialModel [1..epoch]
 
-trainEpoch :: Model -> Dataset -> LossFunction-> Model
-trainEpoch model dataset lossFunction = foldl (trainStep lossFunction) model dataset 
+trainEpoch :: Model -> Dataset -> LossFunction -> MinBatch -> Model
+trainEpoch model dataset lossFunction minBatch = 
+    (foldl (trainBatch lossFunction) model . chunksOf minBatch) dataset 
 
-trainStep :: LossFunction -> Model ->  (Inputs, Targets) -> Model
-trainStep lossFunction model (inputs, targets) = compile model gradsAll inputs resultsAll
+trainBatch :: LossFunction -> Model -> Dataset -> Model
+trainBatch lossFunction model batch = 
+    foldl trainSample model batch
     where
-        resultsAll = forward model inputs 
-        finalResult = last resultsAll
-        initialGradient = lossFunction targets finalResult
-        gradsAll = backward model initialGradient resultsAll inputs
+        trainSample accModel sample =
+            let (gradsAll, inps, resAll) = computePass accModel lossFunction 1.0 sample
+            in compile accModel gradsAll inps resAll
+
+computePass :: Model -> LossFunction -> Double -> (Inputs, Targets) -> (GradientsAll, Inputs, ResultsAll)
+computePass model lossFunction scaleFactor (inputs, targets) =
+    (backward model (scaleGradients scaleFactor (lossFunction targets (last resultsAll))) 
+        resultsAll inputs, inputs, resultsAll)
+    where
+        resultsAll      = forward model inputs 
