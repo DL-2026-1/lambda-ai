@@ -2,8 +2,10 @@ module Main (main) where
 
 import Test.HUnit
 
+import IrisTest
+
 allTests :: Test
-allTests = TestList []
+allTests = TestList [testIris]
 
 main :: IO ()
 main = do
