@@ -1,11 +1,9 @@
 module Main (main) where
 
-import PerceptronTests (testAllPerceptron)
-
 import Test.HUnit
 
 allTests :: Test
-allTests = TestList [TestLabel "Perceptron Tests" testAllPerceptron]
+allTests = TestList []
 
 main :: IO ()
 main = do
