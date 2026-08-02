@@ -23,6 +23,8 @@ library
         ActivationFunction,
         Architeture,
         Convolutional,
+        Model,
+        Layers,
         LossFunctions
     -- other-extensions:
     build-depends:    

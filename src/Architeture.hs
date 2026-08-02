@@ -1,6 +1,9 @@
 module Architeture where
 
 type Dimension                  = Int
+type Epoch                      = Int    
+type MinBatch                   = Int
+
 type Gradient                   = Double
 type Input                      = Double
 type Result                     = Double
@@ -20,14 +23,14 @@ type LossFunction               = (Targets -> Results -> Weights)
 
 type GradientsAll               = [Gradients]
 type InputsAll                  = [Inputs]
+type TargetsAll                 = [Targets]
 type ResultsAll                 = [Results]
 
 type Forward                    = (Inputs -> Results)
 type Backward                   = (Gradients -> Inputs      -> Gradients)
 
-type Node                       = (Forward, Backward)
-type Layer                      = [Node]
-type Model                      = [Layer]
+type Forward'                   = (Inputs -> ResultsAll)
+type Backward'                  = (Gradients -> ResultsAll -> Inputs -> GradientsAll) 
 
 convolution :: Inputs -> Inputs -> [Double]
 convolution (array, [dimensionArray]) (kernel, [dimensionKernel]) =
