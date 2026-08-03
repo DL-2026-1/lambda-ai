@@ -1,5 +1,7 @@
 module Architeture where
 
+import Data.List (foldl1')
+
 type Dimension                  = Int
 type Epoch                      = Int    
 type MinBatch                   = Int
@@ -43,7 +45,7 @@ convolution (array, (dimensionArray:dimensionsArray)) (kernel, (dimensionKernel:
   where
     cutDimensionArray     = product dimensionsArray 
     cutDimensionKernel    = product dimensionsKernel
-    convolution' cutArray = foldl1 (zipWith (+))
+    convolution' cutArray = foldl1' (zipWith (+))
         [ convolution ((drop ((cutArray + cutKernel) * cutDimensionArray) array), dimensionsArray) 
                       ((take cutDimensionKernel (drop (cutKernel * cutDimensionKernel) kernel)), dimensionsKernel) 
         | cutKernel <- [0 .. dimensionKernel - 1] ]

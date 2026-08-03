@@ -47,3 +47,13 @@ chunksOf n xs = take n xs : chunksOf n (drop n xs)
 
 scaleGradients :: Double -> Gradients -> Gradients
 scaleGradients factor (grads, dims) = (map (* factor) grads, dims)
+
+forceTensor :: ([Double], Dimensions) -> ()
+forceTensor (arr, dims) = foldr seq () arr `seq` foldr seq () dims
+
+forcePass :: (GradientsAll, Inputs, ResultsAll) -> (GradientsAll, Inputs, ResultsAll)
+forcePass pass@(grads, inps, res) = 
+    foldr seq () (map forceTensor grads) `seq`
+    forceTensor inps `seq`
+    foldr seq () (map forceTensor res) `seq`
+    pass

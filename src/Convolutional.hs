@@ -1,6 +1,7 @@
 module Convolutional where
 
 import System.Random
+import Data.List (foldl1')
 
 import Architeture
 
@@ -104,7 +105,7 @@ genCNNLayerFunctions layer = (forwardLayer, backwardLayer)
       where
         gradSlices = splitGradients gradients
         dXList     = zipWith (\bwd g -> fst (bwd g inputs)) backwards gradSlices
-        totalDX    = foldl1 (zipWith (+)) dXList
+        totalDX    = foldl1' (zipWith (+)) dXList
 
 updateCNNLayer :: ConvolutionalLayer -> Gradients -> Inputs -> ConvolutionalLayer
 updateCNNLayer layer gradients inputs = layer { convolutionalPerceptrons = updatedPs }
