@@ -47,7 +47,7 @@ dataset = do
             features = map (/ 255.0) (tail row) 
             inputs   = (features, [28, 28])
             targets  = (toOneHot label, [10, 1, 1, 1])
-        in (inputs, targets)) (take 1000 csv)
+        in (inputs, targets)) (take 500 csv)
 
 datasetTest :: IO Dataset
 datasetTest = do
@@ -58,7 +58,7 @@ datasetTest = do
             features = map (/ 255.0) (tail row) 
             inputs   = (features, [28, 28])
             targets  = (toOneHot label, [10, 1, 1, 1])
-        in (inputs, targets)) (take 100 csv)
+        in (inputs, targets)) (take 50 csv)
 
 
 trainSet :: Dataset

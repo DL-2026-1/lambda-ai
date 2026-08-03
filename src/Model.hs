@@ -14,6 +14,8 @@ import Utils (chunksOf, scaleGradients, forcePass)
 
 import Control.Parallel.Strategies (parMap, rseq) 
 
+import Data.List (foldl')
+
 data Model = Model [Layer]
 
 forward :: Model -> Forward'
