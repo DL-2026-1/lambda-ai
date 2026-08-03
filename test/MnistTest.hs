@@ -47,7 +47,7 @@ dataset = do
             features = map (/ 255.0) (tail row) 
             inputs   = (features, [28, 28])
             targets  = (toOneHot label, [10, 1, 1, 1])
-        in (inputs, targets)) csv
+        in (inputs, targets)) (take 10000 csv)
 
 datasetTest :: IO Dataset
 datasetTest = do
@@ -58,7 +58,7 @@ datasetTest = do
             features = map (/ 255.0) (tail row) 
             inputs   = (features, [28, 28])
             targets  = (toOneHot label, [10, 1, 1, 1])
-        in (inputs, targets)) csv
+        in (inputs, targets)) (take 500 csv)
 
 
 trainSet :: Dataset
@@ -73,7 +73,7 @@ trainedModel :: Model
 trainedModel =  
     unsafePerformIO $ do
     initialModel <- mnistModel
-    let epochs = 5
+    let epochs = 1
         minBatch = 32
     return $ train initialModel trainSet mseLF (epochs, minBatch)
 
