@@ -78,7 +78,8 @@ convolution (array, (dimensionArray:dimensionsArray)) (kernel, (dimensionKernel:
         [ convolution ((drop ((cutArray + cutKernel) * cutDimensionArray) array), dimensionsArray) 
                       ((take cutDimensionKernel (drop (cutKernel * cutDimensionKernel) kernel)), dimensionsKernel) 
         | cutKernel <- [0 .. dimensionKernel - 1] ]
-convolution _ _ = []
+convolution outroArray outroKernel = 
+    error $ "Convolution: dimensions of array and kernel do not match. Array: " ++ show outroArray ++ ", Kernel: " ++ show outroKernel
 
 padding :: Inputs -> Dimensions -> Inputs
 padding (array, []) [] = (array, [])
