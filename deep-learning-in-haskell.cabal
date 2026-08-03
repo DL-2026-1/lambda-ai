@@ -28,7 +28,7 @@ library
         Layers,
         LossFunctions,
         Utils
-    -- other-modules: 
+    -- other-modules: Potato 
     -- other-extensions:
     build-depends:    
         base ^>=4.20.2.0,
