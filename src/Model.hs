@@ -1,4 +1,12 @@
-module Model where
+module Model(
+    Model(..), 
+    forward, 
+    backward, 
+    compile, 
+    train, 
+    trainEpoch, 
+    trainBatch, 
+    computePass) where
 
 import Layers
 import Architeture

@@ -1,4 +1,14 @@
-module Convolutional where
+module Convolutional(
+  ConvolutionalPerceptron(..), 
+  ConvolutionalLayer(..), 
+  ConvolutionalLayer'(..), 
+  genKernell, 
+  genCNNLayer, 
+  genCNNPerceptronLast, 
+  updateCNNPerceptron, 
+  splitGradients, 
+  genCNNLayerFunctions, 
+  updateCNNLayer) where
 
 import System.Random
 import Data.List (foldl1')

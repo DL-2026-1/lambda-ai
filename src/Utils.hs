@@ -1,4 +1,11 @@
-module Utils where
+module Utils(
+    readCSV, 
+    shuffle, 
+    stratifiedSplit, 
+    chunksOf, 
+    scaleGradients, 
+    forceTensor, 
+    forcePass) where
 
 import System.Random
 import Data.List (sortOn, groupBy)

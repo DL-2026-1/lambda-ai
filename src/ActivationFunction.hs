@@ -1,4 +1,18 @@
-module ActivationFunction where
+module ActivationFunction(
+    ThresholdValue, 
+    ThresholdValues, 
+    Value, 
+    Values, 
+    Alpha, 
+    ActivationFunction'(..), 
+    threshold, 
+    relu, 
+    leakyRelu, 
+    elu, 
+    tanhF, 
+    sigmoid, 
+    genActivationLayer, 
+    genActivationLayer') where
 
 import Data.List (sortOn)
 import Architeture 

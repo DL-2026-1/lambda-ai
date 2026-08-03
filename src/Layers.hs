@@ -1,4 +1,10 @@
-module Layers where
+module Layers(
+    Layer(..), 
+    MetaLayer(..), 
+    updateLayer, 
+    updateLayers, 
+    genLayer', 
+    genLayer) where
 
 import Convolutional ( ConvolutionalLayer, updateCNNLayer, ConvolutionalLayer', genCNNLayer, genCNNLayerFunctions )
 

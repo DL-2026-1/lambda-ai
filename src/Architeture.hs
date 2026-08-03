@@ -1,4 +1,33 @@
-module Architeture where
+module Architeture(
+    Dimension, 
+    Epoch, 
+    MinBatch, 
+    Gradient, 
+    Input, 
+    Result, 
+    Target, 
+    Weight, 
+    ActivationFunction, 
+    Dimensions, 
+    Gradients, 
+    Inputs, 
+    Results, 
+    Targets, 
+    Weights, 
+    Dataset, 
+    LossFunction, 
+    GradientsAll, 
+    InputsAll, 
+    TargetsAll, 
+    ResultsAll, 
+    Forward, 
+    Backward, 
+    Forward', 
+    Backward',
+    convolution, 
+    padding, 
+    convolutionWrapper, 
+    flipN) where
 
 import Data.List (foldl1')
 

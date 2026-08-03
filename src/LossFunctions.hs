@@ -1,4 +1,6 @@
-module LossFunctions where
+module LossFunctions(
+    simpleLF, 
+    mseLF) where
 
 import Architeture
 
