@@ -62,8 +62,8 @@ trainedModel :: Model
 trainedModel =  
     unsafePerformIO $ do
     initialModel <- irisModel
-    let epochs = 20
-        minBatch = 32
+    let epochs = 30
+        minBatch = 20
     return $ train initialModel trainSet mseLF (epochs, minBatch)
 
 evaluate :: (Inputs, Targets) -> Double

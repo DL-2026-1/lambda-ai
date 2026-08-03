@@ -3,9 +3,10 @@ module Main (main) where
 import Test.HUnit
 
 import IrisTest
+import MnistTest (testMnist)
 
 allTests :: Test
-allTests = TestList [testIris]
+allTests = TestList [testMnist]
 
 main :: IO ()
 main = do
