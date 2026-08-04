@@ -6,7 +6,9 @@ import IrisTest
 import MnistTest (testMnist)
 
 allTests :: Test
-allTests = TestList [testMnist, testIris]
+allTests = TestList [
+  testMnist, 
+  testIris]
 
 main :: IO ()
 main = do

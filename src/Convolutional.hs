@@ -41,14 +41,14 @@ data ConvolutionalLayer' = ConvolutionalLayer'
 genKernell :: Dimensions -> IO (Weights)
 genKernell dims = do
   let size = product dims
-  weights <- mapM (\_ -> randomRIO (-0.5, 0.5)) [1..size]
+  weights <- mapM (\_ -> randomRIO (-0.01, 0.01)) [1..size]
   return (weights, dims)
 
 genCNNLayer :: ConvolutionalLayer' -> IO (ConvolutionalLayer)
 genCNNLayer convolutional' = do
   kernels <- mapM (\_ -> genKernell (dimensions convolutional')) [1..(filters convolutional')]
   learnRates <- mapM (\_ -> randomRIO (0.01, 0.1)) [1..(filters convolutional')]
-  biases <- mapM (\_ -> randomRIO (-0.5, 0.5)) [1..(filters convolutional')]
+  biases <- mapM (\_ -> randomRIO (-0.01, 0.01)) [1..(filters convolutional')]
   let learnRates' = if (learnRate' convolutional') > 0 then replicate (filters convolutional') (learnRate' convolutional') else learnRates 
   return ConvolutionalLayer 
     { 

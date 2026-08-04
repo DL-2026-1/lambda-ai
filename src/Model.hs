@@ -37,25 +37,9 @@ compile :: Model -> GradientsAll -> Inputs -> ResultsAll -> Model
 compile (Model layers) gradientsAll inputs resultsAll = 
     Model $ updateLayers layers gradientsAll (inputs : init resultsAll)
 
-evaluate :: Model -> Dataset -> LossFunction -> Double
-evaluate model dataset lossFunction = 
-    sum [ sum (fst (lossFunction targets (last (Model.forward model inputs)))) 
-        | ((inputs, targets)) <- dataset ]
-
-train :: Model -> Dataset -> Dataset -> LossFunction -> (Epoch, MinBatch) -> Model
-train initialModel dataset validationSet lossFunction (epochs, minBatch) = 
-    let initialValLoss = evaluate initialModel validationSet lossFunction        
-        (_, _, bestModel) = foldl' (\(currentModel, bestLoss, bestModelAcc) _ ->
-            let 
-                trainedModel = trainEpoch currentModel dataset lossFunction minBatch
-                valLoss = evaluate trainedModel validationSet lossFunction
-            in 
-                if valLoss < bestLoss
-                    then (trainedModel, valLoss, trainedModel)
-                    else (trainedModel, bestLoss, bestModelAcc)
-            ) (initialModel, initialValLoss, initialModel) [1..epochs]
-    in bestModel
-    -- foldl' (\m _ -> trainEpoch m dataset lossFunction minBatch) initialModel [1..epoch]
+train :: Model -> Dataset -> LossFunction -> (Epoch, MinBatch) -> Model
+train initialModel dataset lossFunction (epochs, minBatch) = 
+    foldl' (\m _ -> trainEpoch m dataset lossFunction minBatch) initialModel [1..epochs]
 
 trainEpoch :: Model -> Dataset -> LossFunction -> MinBatch -> Model
 trainEpoch model dataset lossFunction minBatch = 

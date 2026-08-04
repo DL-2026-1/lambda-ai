@@ -6,7 +6,7 @@ import Data.Ord (comparing)
 
 import Layers (MetaLayer (MetaActivation, MetaConvolution), genLayer')
 import Convolutional (ConvolutionalLayer'(..))
-import ActivationFunction (ActivationFunction'(..))
+import ActivationFunction (ActivationFunction'(..), sigmoid)
 import Model (Model(Model), train, forward)
 import Utils (readCSV, stratifiedSplit)
 import LossFunctions (mseLF)
@@ -16,10 +16,10 @@ import GHC.IO (unsafePerformIO)
 mnistMetaLayers :: [MetaLayer]
 mnistMetaLayers = 
     [
-         (MetaConvolution (ConvolutionalLayer' { learnRate' = 0.01, filters = 8, dimensions = [19, 19] })),
+         (MetaConvolution (ConvolutionalLayer' { learnRate' = 0.05, filters = 2, dimensions = [19, 19] })),
          (MetaActivation (ActivationFunction' "relu")),
 
-         (MetaConvolution (ConvolutionalLayer' { learnRate' = 0.01, filters = 10, dimensions = [8, 10, 10] })),
+         (MetaConvolution (ConvolutionalLayer' { learnRate' = 0.05, filters = 10, dimensions = [2, 10, 10] })),
          (MetaActivation (ActivationFunction' "sigmoid"))
     ]
 
@@ -47,7 +47,7 @@ dataset = do
             features = map (/ 255.0) (tail row) 
             inputs   = (features, [28, 28])
             targets  = (toOneHot label, [10, 1, 1, 1])
-        in (inputs, targets)) (take 500 csv)
+        in (inputs, targets)) csv
 
 datasetTest :: IO Dataset
 datasetTest = do
@@ -58,22 +58,28 @@ datasetTest = do
             features = map (/ 255.0) (tail row) 
             inputs   = (features, [28, 28])
             targets  = (toOneHot label, [10, 1, 1, 1])
-        in (inputs, targets)) (take 50 csv)
+        in (inputs, targets)) csv
 
+
+totalDataset :: Dataset
+(totalDataset, _) = unsafePerformIO $ do
+    ds <- dataset
+    stratifiedSplit (1/3) ds 
 
 trainSet :: Dataset
-testSet :: Dataset
-(trainSet, testSet) = unsafePerformIO $ do
-    ds <- dataset
-    stratifiedSplit 0.8 ds
+validationSet :: Dataset
+(trainSet, validationSet) = unsafePerformIO $ stratifiedSplit 0.7 totalDataset
 
-testSet' = unsafePerformIO $ datasetTest
+testSet :: Dataset
+(testSet, _) = unsafePerformIO $ do 
+    ds <- datasetTest
+    stratifiedSplit 0.1 ds
 
 trainedModel :: Model
 trainedModel =  
     unsafePerformIO $ do
     initialModel <- mnistModel
-    let epochs = 1
+    let epochs = 3
         minBatch = 32
     return $ train initialModel trainSet mseLF (epochs, minBatch)
 
@@ -85,39 +91,16 @@ evaluate (inputs, targets) =
                 actualClass    = argmax (fst targets)
             in if predictedClass == actualClass then 1.0 else 0.0
     
-correctPredictions :: Double
-correctPredictions = sum (map evaluate testSet)
 
 correctPredictionsTest :: Double
-correctPredictionsTest = sum (map evaluate testSet')
+correctPredictionsTest = sum (map evaluate testSet)
 
-totalPredictions :: Double
-totalPredictions = fromIntegral (length testSet)
 
 totalPredictionsTest :: Double
-totalPredictionsTest = fromIntegral (length testSet')
-
-accuracy :: Double
-accuracy = correctPredictions / totalPredictions
+totalPredictionsTest = fromIntegral (length testSet)
 
 accuracyTest :: Double
 accuracyTest = correctPredictionsTest / totalPredictionsTest
-
-testMnistMinimum :: Test
-testMnistMinimum = TestCase (assertBool ("O modelo nao obteve precisao superior a 10%. Acuracia obtida: " ++ show accuracy) (accuracy > 0.1))
-
-testMnistLow :: Test
-testMnistLow = TestCase (assertBool ("O modelo nao obteve precisao superior a 20%. Acuracia obtida: " ++ show accuracy) (accuracy > 0.2))
-
-testMnistMedium :: Test
-testMnistMedium = TestCase (assertBool ("O modelo nao obteve precisao superior a 40%. Acuracia obtida: " ++ show accuracy) (accuracy > 0.4))
-
-testMnistHigh :: Test
-testMnistHigh = TestCase (assertBool ("O modelo nao obteve precisao superior a 60%. Acuracia obtida: " ++ show accuracy) (accuracy > 0.6))
-
-testMnistAcceptable :: Test
-testMnistAcceptable = TestCase (assertBool ("O modelo nao obteve precisao superior a 70%. Acuracia obtida: " ++ show accuracy) (accuracy > 0.7))
-
 
 testMnistMinimumTest :: Test
 testMnistMinimumTest = TestCase (assertBool ("O modelo nao obteve precisao superior a 10%. Acuracia obtida: " ++ show accuracyTest) (accuracyTest > 0.1))
@@ -136,12 +119,7 @@ testMnistAcceptableTest = TestCase (assertBool ("O modelo nao obteve precisao su
 
 
 testMnist :: Test
-testMnist = TestList [ TestLabel "Verificacao de Acuracia Minima - Dataset MNIST"    testMnistMinimum
-                     , TestLabel "Verificacao de Acuracia Baixa - Dataset MNIST"     testMnistLow
-                     , TestLabel "Verificacao de Acuracia Media - Dataset MNIST"     testMnistMedium
-                     , TestLabel "Verificacao de Acuracia Alta - Dataset MNIST"      testMnistHigh
-                     , TestLabel "Verificacao de Acuracia Aceitavel - Dataset MNIST" testMnistAcceptable
-                     , TestLabel "Verificacao de Acuracia Minima - Dataset MNIST (Test)"    testMnistMinimumTest
+testMnist = TestList [ TestLabel "Verificacao de Acuracia Minima - Dataset MNIST (Test)"    testMnistMinimumTest
                      , TestLabel "Verificacao de Acuracia Baixa - Dataset MNIST (Test)"     testMnistLowTest
                      , TestLabel "Verificacao de Acuracia Media - Dataset MNIST (Test)"     testMnistMediumTest
                      , TestLabel "Verificacao de Acuracia Alta - Dataset MNIST (Test)"      testMnistHighTest

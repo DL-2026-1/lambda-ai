@@ -6,9 +6,9 @@ import Data.Ord (comparing)
 
 import Layers (MetaLayer (MetaActivation, MetaConvolution), genLayer')
 import Convolutional (ConvolutionalLayer'(..))
-import ActivationFunction (ActivationFunction'(..))
+import ActivationFunction (ActivationFunction'(..), sigmoid)
 import Model (Model(Model), train, forward)
-import Utils (readCSV, stratifiedSplit)
+import Utils (readCSV, stratifiedSplit, shuffle)
 import LossFunctions (mseLF)
 import Architeture (Inputs, Targets, Dataset)
 import GHC.IO (unsafePerformIO)
@@ -16,13 +16,13 @@ import GHC.IO (unsafePerformIO)
 irisMetaLayers :: [MetaLayer]
 irisMetaLayers = 
     [
-         (MetaConvolution (ConvolutionalLayer' { learnRate' = 0.01, filters     = 8, dimensions  = [4]    })),
-         (MetaActivation (ActivationFunction' "relu")),
+         (MetaConvolution (ConvolutionalLayer' { learnRate' = 0.1, filters     = 8, dimensions  = [4]    })),
+         (MetaActivation (ActivationFunction' "leakyRelu")),
 
-         (MetaConvolution (ConvolutionalLayer' { learnRate' = 0.01, filters     = 16, dimensions  = [8,1]    })),
-         (MetaActivation (ActivationFunction' "relu")),
+         (MetaConvolution (ConvolutionalLayer' { learnRate' = 0.1, filters     = 8, dimensions  = [8,1]    })),
+         (MetaActivation (ActivationFunction' "leakyRelu")),
 
-         (MetaConvolution (ConvolutionalLayer' { learnRate' = 0.01, filters     = 3, dimensions  = [16, 1, 1]    })),
+         (MetaConvolution (ConvolutionalLayer' { learnRate' = 0.1, filters     = 3, dimensions  = [8, 1, 1]    })),
          (MetaActivation (ActivationFunction' "sigmoid"))
     ]
 
@@ -44,26 +44,35 @@ csvData = readCSV "data/iris.csv"
 dataset :: IO Dataset
 dataset = do
     csv <- csvData
+    csv' <- shuffle csv
     return $ 
         map (\row -> 
-        let features = take 4 row
+        let rawFeatures = take 4 row
+            features = [head rawFeatures / 8.0, 
+                        rawFeatures !! 1 / 4.5, 
+                        rawFeatures !! 2 / 7.0, 
+                        rawFeatures !! 3 / 2.5]
             label = last row
             inputs = (features, [4])
             targets = (toOneHot label, [3,1,1,1])
-        in (inputs, targets)) csv
+        in (inputs, targets)) csv'
 
 trainSet :: Dataset
 testSet :: Dataset
 (trainSet, testSet) = unsafePerformIO $ do
     ds <- dataset
-    stratifiedSplit 0.8 ds
+    stratifiedSplit 0.7 ds
+
+validationSet :: Dataset
+testSet' :: Dataset
+(validationSet, testSet') = unsafePerformIO $ stratifiedSplit 0.5 testSet
 
 trainedModel :: Model
 trainedModel =  
     unsafePerformIO $ do
     initialModel <- irisModel
-    let epochs = 30
-        minBatch = 20
+    let epochs = 500
+        minBatch = 15
     return $ train initialModel trainSet mseLF (epochs, minBatch)
 
 evaluate :: (Inputs, Targets) -> Double
@@ -75,10 +84,10 @@ evaluate (inputs, targets) =
             in if predictedClass == actualClass then 1.0 else 0.0
         
 correctPredictions :: Double
-correctPredictions = sum (map evaluate testSet)
+correctPredictions = sum (map evaluate testSet')
 
 totalPredictions :: Double
-totalPredictions = fromIntegral (length testSet)
+totalPredictions = fromIntegral (length testSet')
 
 accuracy :: Double
 accuracy = correctPredictions / totalPredictions
