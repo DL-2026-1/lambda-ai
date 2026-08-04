@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric #-}
 module Model(
     Model(..), 
     forward, 
@@ -12,11 +13,16 @@ import Layers
 import Architeture
 import Utils (chunksOf, scaleGradients, forcePass)
 
+import GHC.Generics (Generic)
+import Control.DeepSeq (NFData, force)
+
 import Control.Parallel.Strategies (parMap, rseq) 
 
 import Data.List (foldl')
 
 data Model = Model [Layer]
+    deriving (Generic)
+instance NFData Model
 
 forward :: Model -> Forward'
 forward (Model layers) inputs =
@@ -51,7 +57,7 @@ trainBatch lossFunction model batch =
         computedPasses = parMap rseq (\sample -> 
             forcePass (computePass model lossFunction scaleFactor sample)
             ) batch
-    in foldl' (\accModel (gradsAll, inps, resAll) -> compile accModel gradsAll inps resAll) model computedPasses
+    in force $ foldl' (\accModel (gradsAll, inps, resAll) -> compile accModel gradsAll inps resAll) model computedPasses
 
 computePass :: Model -> LossFunction -> Double -> (Inputs, Targets) -> (GradientsAll, Inputs, ResultsAll)
 computePass model lossFunction scaleFactor (inputs, targets) =

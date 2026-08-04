@@ -35,7 +35,7 @@ numeroClasses = 4
 numeroCanais :: Int
 numeroCanais  = 22
 numeroFiltros :: Int
-numeroFiltros = 2
+numeroFiltros = 10
 tamanhoKernel :: Int
 tamanhoKernel = 50
 

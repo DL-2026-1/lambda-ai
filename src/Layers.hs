@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric #-}
 module Layers(
     Layer(..), 
     MetaLayer(..), 
@@ -6,12 +7,18 @@ module Layers(
     genLayer', 
     genLayer) where
 
+import GHC.Generics (Generic)
+import Control.DeepSeq (NFData, force)
+
+
 import Convolutional ( ConvolutionalLayer, updateCNNLayer, ConvolutionalLayer', genCNNLayer, genCNNLayerFunctions )
 
 import Architeture 
 import ActivationFunction
 
 data Layer = ConvolutionalLayer Convolutional.ConvolutionalLayer | ActivationLayer Architeture.ActivationFunction
+    deriving (Generic)
+instance NFData Layer
 
 data MetaLayer = MetaConvolution Convolutional.ConvolutionalLayer' | MetaActivation ActivationFunction'
 

@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 module Convolutional(
   ConvolutionalPerceptron(..), 
   ConvolutionalLayer(..), 
@@ -9,6 +11,9 @@ module Convolutional(
   splitGradients, 
   genCNNLayerFunctions, 
   updateCNNLayer) where
+
+import GHC.Generics (Generic)
+import Control.DeepSeq (NFData, force)
 
 import System.Random
 import Data.List (foldl1')
@@ -23,11 +28,15 @@ data ConvolutionalPerceptron = ConvolutionalPerceptron
   , bias               :: Weight
   , learnRate          :: Weight
   }
+  deriving (Show, Generic)
+instance NFData ConvolutionalPerceptron
 
 data ConvolutionalLayer = ConvolutionalLayer 
   {
     convolutionalPerceptrons :: [ConvolutionalPerceptron]
   }
+  deriving (Show, Generic)
+instance NFData ConvolutionalLayer
 
 data ConvolutionalLayer' = ConvolutionalLayer' 
   {
